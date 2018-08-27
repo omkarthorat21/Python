@@ -1,4 +1,7 @@
 def myfunc(*args):
+    '''
+    creating list of even numbers from the arguments
+    '''
     mylist=[]
     #x=0
     for x in args:
