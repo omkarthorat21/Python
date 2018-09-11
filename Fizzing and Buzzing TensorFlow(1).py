@@ -39,15 +39,23 @@ def fizzbuzz(n):
 def createInputCSV(start,end,filename):
     
     # Why list in Python?
+    #Lists are used here to strore the data from the csv file row-wise
     inputData   = []
     outputData  = []
     
     # Why do we need training Data?
+    # IF we are to develop a model that is going to predict Fizz, Buzz or FizzBuzz, then 
+    # we should first make the model learn how to identify which input is fizz,buzz and so on
+    #The way we make the maodel learn is providing some data called as training data
+    #using which it can learn to predict new values. 
     for i in range(start,end):
         inputData.append(i)
         outputData.append(fizzbuzz(i))
     
     # Why Dataframe?
+    # When we scan the csv file, the data that we get is very scattered and nothing can be 
+    # understood much out of it. A dataframe helps us beautify the data by seggregating it by
+    # column names where each coulmn can be some label
     dataset = {}
     dataset["input"]  = inputData
     dataset["label"] = outputData
@@ -66,6 +74,10 @@ def createInputCSV(start,end,filename):
 def processData(dataset):
     
     # Why do we have to process?
+    # When we input large amounts of data through say .csv file, there is a good chance that 
+    # some part of the data might be corrupt or not in the format that we want for example
+    # a int can be passed as a string. This would create problems for us and hence we need to
+    #clean/process data before giving it to the model
     data   = dataset['input'].values
     labels = dataset['label'].values
     
@@ -87,6 +99,7 @@ def encodeData(data):
     for dataInstance in data:
         
         # Why do we have number 10?
+        #Each input integer is converted to a binary and hence to do that we require the number 10
         processedData.append([dataInstance >> d & 1 for d in range(10)])
     
     return np.array(processedData)
@@ -120,18 +133,20 @@ def encodeLabel(labels):
 
 
 # Create datafiles
-createInputCSV(101,1001,'training.csv')
-createInputCSV(1,101,'testing.csv')
+createInputCSV(101,1001,'training.csv') #this file will be used for training our model
+createInputCSV(1,101,'testing.csv') #this file will be used to test our model
 
 
 # In[61]:
 
 
 # Read Dataset
+#here both the data files are read
 trainingData = pd.read_csv('training.csv')
 testingData  = pd.read_csv('testing.csv')
 
 # Process Dataset
+#here we check for any corrupt data or any data that is not according to the expected value
 processedTrainingData, processedTrainingLabel = processData(trainingData)
 processedTestingData, processedTestingLabel   = processData(testingData)
 
@@ -150,7 +165,7 @@ outputTensor = tf.placeholder(tf.float32, [None, 4])
 
 
 NUM_HIDDEN_NEURONS_LAYER_1 = 100
-LEARNING_RATE = 0.05
+LEARNING_RATE = 0.3
 
 # Initializing the weights to Normal Distribution
 def init_weights(shape):
@@ -162,7 +177,7 @@ input_hidden_weights  = init_weights([10, NUM_HIDDEN_NEURONS_LAYER_1])
 hidden_output_weights = init_weights([NUM_HIDDEN_NEURONS_LAYER_1, 4])
 
 # Computing values at the hidden layer
-hidden_layer = tf.nn.relu(tf.matmul(inputTensor, input_hidden_weights))
+hidden_layer = tf.nn.softmax(tf.matmul(inputTensor, input_hidden_weights))
 # Computing values at the output layer
 output_layer = tf.matmul(hidden_layer, hidden_output_weights)
 
@@ -260,10 +275,10 @@ testDataInput = testingData['input'].tolist()
 testDataLabel = testingData['label'].tolist()
 
 testDataInput.insert(0, "UBID")
-testDataLabel.insert(0, "XXXXXXXX")
+testDataLabel.insert(0, "omkarsun@buffalo.edu")
 
 testDataInput.insert(1, "personNumber")
-testDataLabel.insert(1, "XXXXXXXX")
+testDataLabel.insert(1, "50290136")
 
 predictedTestLabelList.insert(0, "")
 predictedTestLabelList.insert(1, "")
